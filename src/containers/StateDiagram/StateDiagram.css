@@ -1,0 +1,20 @@
+.StateDiagram {
+  position: absolute;
+  top: 10px;
+  left: 310px;
+
+  box-sizing: border-box;
+  border: 1px solid black;
+  border-left-width: 0px;
+  background-color: white;
+
+  width: 800px;
+  height: 400px;
+}
+
+#state-diagram-canvas,
+#state-diagram-svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
