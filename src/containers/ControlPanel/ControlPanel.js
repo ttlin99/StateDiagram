@@ -143,6 +143,7 @@ const ControlPanel = () => {
     changeCurrEventType,
     selectedStateObjectId,
     deleteSelectedStateObject,
+    bindStateDiagram,
   } = useContext(ControlContext);
 
   var currOptions = undefined;
@@ -181,6 +182,7 @@ const ControlPanel = () => {
         selectedStateObjectId={selectedStateObjectId}
         deleteSelectedStateObject={deleteSelectedStateObject}
       />
+      <button onClick={bindStateDiagram}> Run </button>
     </div>
   );
 };

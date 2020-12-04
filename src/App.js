@@ -24,6 +24,9 @@ class App extends Component {
     // handling undo/redo
     commandList: [],
     currCommand: -1,
+
+    // state diagram
+    currStateInDiagram: defaultValues.stateDiagramStart,
   };
 
   constructor() {
@@ -82,6 +85,56 @@ class App extends Component {
     }
   };
 
+  bindStateDiagram = () => {
+
+    //placeholder for actual transitions parsed from state diagram drawn by user
+    var transitionsDict = {
+      mousedown: {"default": "moving"},
+      mouseup: {"moving": "dblclick"},
+
+    };
+
+    window.addEventListener('mousedown', (e) => {
+      if (e.target.className === 'targetObject') {
+        if (!transitionsDict.mousedown) return;
+
+        var transition = transitionsDict.mousedown[this.state.currStateInDiagram];
+        if (transition) {
+          this.setState({ currStateInDiagram: transition });
+        }
+      }
+    });
+
+    window.addEventListener('mouseup', (e) => {
+      if (e.target.className === 'targetObject') {
+        if (!transitionsDict.mouseup) return;
+
+        var transition = transitionsDict.mouseup[this.state.currStateInDiagram];
+        if (transition) {
+          this.setState({ currStateInDiagram: transition });
+        }
+      }
+    });
+
+    window.addEventListener('dblclick', (e) => {
+      if (e.target.className === 'targetObject') {
+        if (!transitionsDict.dblclick) return;
+
+        var transition = transitionsDict.dblclick[this.state.currStateInDiagram];
+        if (transition) {
+          this.setState({ currStateInDiagram: transition });
+        }
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (this.currStateInDiagram === 'moving') {
+        //move selected object
+      }
+    });
+
+  }
+
   render() {
     const {
       currMode,
@@ -124,11 +177,12 @@ class App extends Component {
               }
             },
             deleteSelectedStateObject: this.deleteSelectedStateObject,
+            bindStateDiagram: this.bindStateDiagram
           }}
         >
           <ControlPanel />
           <StateDiagram />
-          <Workspace />
+          <Workspace/>
         </ControlContext.Provider>
       </React.Fragment>
     );
