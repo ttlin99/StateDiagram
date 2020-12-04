@@ -7,6 +7,7 @@ import TransitionImg from "../../assets/img/transition.png";
 import StateObjectImg from "../../assets/img/state.png";
 import supportedStateTypes from "../../shared/supportedStateTypes";
 import supportedEventTypes from "../../shared/supportedEventTypes";
+import supportedObjectTypes from "../../shared/supportedObjectTypes";
 import ControlContext from "../../contexts/control-context";
 
 import "./ControlPanel.css";
@@ -44,22 +45,22 @@ const Modes = ({
   );
 };
 
-const StateTypePicker = ({ title, currStateType, setCurrStateType }) => {
+const OptionPicker = ({ title, currSelected, setOption, allOptions }) => {
   return (
     <div className="Control">
       <h3>{title}</h3>
       <div className="Modes">
-        {supportedStateTypes.map((stateType, idx) => (
+        {allOptions.map((option, idx) => (
           <div
             key={idx}
-            className={["Mode", currStateType === stateType ? "Active" : null].join(
+            className={["Mode", currSelected === option ? "Active" : null].join(
               " "
             )}
             onClick={() => {
-                setCurrStateType(stateType);
+                setOption(option);
             }}
           >
-            {stateType}
+            {option}
           </div>
         ))}
       </div>
@@ -72,46 +73,37 @@ const StateType = ({
   changeCurrStateType,
 }) => {
   return (
-    <StateTypePicker
+    <OptionPicker
       title={"State Type:"}
-      currStateType={currStateType}
-      setCurrStateType={changeCurrStateType}
+      currSelected={currStateType}
+      setOption={changeCurrStateType}
+      allOptions={supportedStateTypes}
     />
-  );
-};
-
-const EventTypePicker = ({ title, currEventType, setCurrEventType }) => {
-  return (
-    <div className="Control">
-      <h3>{title}</h3>
-      <div className="Modes">
-        {supportedEventTypes.map((eventType, idx) => (
-          <div
-            key={idx}
-            className={["Mode", currEventType === eventType ? "Active" : null].join(
-              " "
-            )}
-            onClick={() => {
-                setCurrEventType(eventType);
-            }}
-          >
-            {eventType}
-          </div>
-        ))}
-      </div>
-    </div>
   );
 };
 
 const EventType = ({ currEventType, changeCurrEventType }) => {
   return (
-    <EventTypePicker
+    <OptionPicker
       title={"Transition Type:"}
-      currEventType={currEventType}
-      setCurrEventType={changeCurrEventType}
+      currSelected={currEventType}
+      setOption={changeCurrEventType}
+      allOptions={supportedEventTypes}
     />
   );
 };
+
+const ObjectType = ({ currObjectType, changeCurrObjectType }) => {
+  return (
+    <OptionPicker
+      title={"on Object:"}
+      currSelected={currObjectType}
+      setOption={changeCurrObjectType}
+      allOptions={supportedObjectTypes}
+    />
+  );
+};
+
 
 const Delete = ({ selectedStateObjectId, deleteSelectedStateObject }) => {
   return (
@@ -132,6 +124,17 @@ const Delete = ({ selectedStateObjectId, deleteSelectedStateObject }) => {
   );
 };
 
+const Run = ({run}) => {
+  return (
+    <div className="Control">
+      <h3>Run:</h3>
+      <div className="DeleteButtonsContainer">
+        <button onClick={run}> Run </button>{" "}
+      </div>
+    </div>
+  );
+};
+
 const ControlPanel = () => {
   // use useContext to access the functions & values from the provider
   const {
@@ -141,6 +144,8 @@ const ControlPanel = () => {
     changeCurrStateType,
     currEventType,
     changeCurrEventType,
+    currObjectType,
+    changeCurrObjectType,
     selectedStateObjectId,
     deleteSelectedStateObject,
     bindStateDiagram,
@@ -152,18 +157,23 @@ const ControlPanel = () => {
     currOptions = undefined;
   }
   else if(currMode === "transition"){
-    currOptions = <EventType
-                    currMode={currMode}
+    currOptions = (<>
+                  <EventType
                     currEventType={currEventType}
                     changeCurrEventType={changeCurrEventType}
                   />
+                  <ObjectType
+                    currObjectType={currObjectType}
+                    changeCurrObjectType={changeCurrObjectType}
+                  />
+
+                  </>
+    );
   }
   else if(currMode === "stateObject"){
     currOptions = <StateType
-                    currMode={currMode}
                     currStateType={currStateType}
                     changeCurrStateType={changeCurrStateType}
-                    currEventType={currEventType}
                   />
   }
 
@@ -182,7 +192,11 @@ const ControlPanel = () => {
         selectedStateObjectId={selectedStateObjectId}
         deleteSelectedStateObject={deleteSelectedStateObject}
       />
-      <button onClick={bindStateDiagram}> Run </button>
+
+      <Run
+        run={bindStateDiagram}
+      />
+
     </div>
   );
 };

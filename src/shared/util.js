@@ -8,9 +8,8 @@ export const genId = () => {
 export const selectShadowId = "select-shadow";
 
 export const defaultValues = {
-  mode: "line", // 'select', 'line', 'rect', 'ellipse',
-  borderColor: "#000",
-  borderWidth: 3,
-  fillColor: "#9fce63",
-  stateDiagramStart: "default"
+  mode: "stateObject",
+  stateType: "default",
+  eventType: "mouse-down",
+  objectType: "work space"
 };

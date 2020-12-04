@@ -15,6 +15,7 @@ class App extends Component {
     currMode: defaultValues.mode,
     currStateType: defaultValues.stateType,
     currEventType: defaultValues.eventType,
+    currObjectType: defaultValues.objectType,
 
     // workspace
     stateObjects: [],
@@ -85,6 +86,13 @@ class App extends Component {
     }
   };
 
+  changeCurrObjectType = (objectType) => {
+    this.setState({ currObjectType: objectType });
+    if (this.state.selectedStateObjectId) {
+      this.updateStateObject(this.state.selectedStateObjectId, { objectType });
+    }
+  };
+
   bindStateDiagram = () => {
 
     //placeholder for actual transitions parsed from state diagram drawn by user
@@ -140,6 +148,7 @@ class App extends Component {
       currMode,
       currStateType,
       currEventType,
+      currObjectType,
       stateObjects,
       stateObjectsMap,
       selectedStateObjectId,
@@ -155,9 +164,10 @@ class App extends Component {
             changeCurrMode: this.changeCurrMode,
             currStateType,
             changeCurrStateType: this.changeCurrStateType,
-            changeCurrBorderWidth: this.changeCurrBorderWidth,
             currEventType,
             changeCurrEventType: this.changeCurrEventType,
+            currObjectType,
+            changeCurrObjectType: this.changeCurrObjectType,
 
             stateObjects,
             stateObjectsMap,
