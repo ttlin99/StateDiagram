@@ -30,8 +30,12 @@ class App extends Component {
         visible: true,
         incomingTransitions: [],
         outgoingTransitions: [],
+
       }},
     selectedStateObjectId: undefined,
+
+    // maps transitionId to transition data: eventType, behavior, object
+    transitionData: {},
 
     // handling undo/redo
     commandList: [],
@@ -49,6 +53,7 @@ class App extends Component {
   addStateObject = (shapeData) => {
     let stateObjects = [...this.state.stateObjects];
     let stateObjectsMap = { ...this.state.stateObjectsMap };
+    let transitionData = { ...this.state.transitionData };
     const id = genId();
     stateObjectsMap[id] = {
       ...shapeData,
@@ -63,8 +68,12 @@ class App extends Component {
       if(startStateData && endStateData){
         let startStateOutgoing = startStateData.outgoingTransitions;
         let endStateIncoming = endStateData.incomingTransitions;
+
         startStateOutgoing.push(id);
         endStateIncoming.push(id);
+        transitionData[id] = ({ eventType: this.state.currEventType,
+                                behavior: this.state.currBehavior,
+                                object: this.state.currObjectType });
 
         stateObjectsMap[startStateId] = {
           ...startStateData,
@@ -75,9 +84,10 @@ class App extends Component {
           ...endStateData,
           incomingTransitions: endStateIncoming,
         };
+
       }
     }
-    this.setState({ stateObjects, stateObjectsMap, selectedStateObjectId: id });
+    this.setState({ stateObjects, stateObjectsMap, transitionData, selectedStateObjectId: id });
   };
 
   // get the shape by its id, and update its properties
@@ -87,6 +97,13 @@ class App extends Component {
     stateObjectsMap[shapeId] = { ...targetStateObject, ...newData };
     this.setState({ stateObjectsMap });
   };
+
+  updateTransitionData = (shapeId, newData) => {
+    let transitionData = { ...this.state.transitionData };
+    let targetTransition = this.state.transitionData[shapeId];
+    transitionData[shapeId] = { ...targetTransition, ...newData };
+    this.setState({ transitionData });
+  }
 
   moveNode = (newData) => {
     if (this.state.selectedStateObjectId) {
@@ -113,12 +130,38 @@ class App extends Component {
   deleteSelectedStateObject = () => {
     let stateObjectsMap = { ...this.state.stateObjectsMap };
     stateObjectsMap[this.state.selectedStateObjectId].visible = false;
+
+    let targetStateObject = stateObjectsMap[this.state.selectedStateObjectId];
+
+    if(targetStateObject.type === "node") {
+      // sets all incoming transitions' visibilities to false
+      for(var i = 0; i < targetStateObject.incomingTransitions.length; i++){
+        let currId = targetStateObject.incomingTransitions[i];
+        stateObjectsMap[currId].visible = false;
+      }
+      // sets all outgoing transitions' visibilities to false
+      for(var j = 0; j < targetStateObject.outgoingTransitions.length; j++){
+        let currId = targetStateObject.outgoingTransitions[j];
+        stateObjectsMap[currId].visible = false;
+      }
+    }
+
     this.setState({ stateObjectsMap, selectedStateObjectId: undefined });
   };
 
   resetStateDiagram = () => {
-    let stateObjectsMap = {};
-    let stateObjects = []
+    let stateObjectsMap = {
+      start: {
+        finalCoords: {x: 100, y: 100},
+        id: "start",
+        initCoords: {x: 100, y: 100},
+        nodeName: "0",
+        type: "node",
+        visible: true,
+        incomingTransitions: [],
+        outgoingTransitions: [],
+      }};
+    let stateObjects = ["start"];
     this.setState({ stateObjectsMap, stateObjects, selectedStateObjectId: undefined });
   };
 
@@ -137,6 +180,7 @@ class App extends Component {
     this.setState({ currEventType: eventType });
     if (this.state.selectedStateObjectId) {
       this.updateStateObject(this.state.selectedStateObjectId, { eventType });
+      this.updateTransitionData(this.state.selectedStateObjectId, { eventType });
     }
   };
 
@@ -144,6 +188,7 @@ class App extends Component {
     this.setState({ currBehavior: behavior });
     if (this.state.selectedStateObjectId) {
       this.updateStateObject(this.state.selectedStateObjectId, { behavior });
+      this.updateTransitionData(this.state.selectedStateObjectId, { behavior });
     }
   };
 
@@ -151,6 +196,7 @@ class App extends Component {
     this.setState({ currObjectType: objectType });
     if (this.state.selectedStateObjectId) {
       this.updateStateObject(this.state.selectedStateObjectId, { objectType });
+      this.updateTransitionData(this.state.selectedStateObjectId, { objectType });
     }
   };
 
