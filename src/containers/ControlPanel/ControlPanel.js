@@ -138,23 +138,9 @@ const Delete = ({ selectedStateObjectId, deleteSelectedStateObject, resetStateDi
         </button>{" "}
         <button
           onClick={() => resetStateDiagram()}
-          style={{
-            cursor: !selectedStateObjectId ? "not-allowed" : null,
-          }}
         >
           <FaTrash className="ButtonIcon" /> Reset
         </button>{" "}
-      </div>
-    </div>
-  );
-};
-
-const Run = ({run}) => {
-  return (
-    <div className="Control">
-      <h3>Run:</h3>
-      <div className="DeleteButtonsContainer">
-        <button onClick={run}> Run </button>{" "}
       </div>
     </div>
   );
@@ -176,7 +162,6 @@ const ControlPanel = () => {
     resetStateDiagram,
     selectedStateObjectId,
     deleteSelectedStateObject,
-    bindStateDiagram,
   } = useContext(ControlContext);
 
   var currOptions = undefined;
@@ -225,10 +210,6 @@ const ControlPanel = () => {
         selectedStateObjectId={selectedStateObjectId}
         deleteSelectedStateObject={deleteSelectedStateObject}
         resetStateDiagram={resetStateDiagram}
-      />
-
-      <Run
-        run={bindStateDiagram}
       />
 
     </div>

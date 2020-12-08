@@ -16,6 +16,7 @@ const SVGLayer = () => {
     currEventType,
     currObjectType,
     currBehavior,
+    currStateInDiagram,
     stateObjects,
     stateObjectsMap,
     addStateObject,
@@ -264,10 +265,16 @@ const SVGLayer = () => {
       case "node": {
         let x = finalCoords.x;
         let y = finalCoords.y;
+        let isCurrState = false;
+
+        if(id === currStateInDiagram){
+          isCurrState = true;
+        }
 
         return React.createElement(Node, {
           cx: x,
           cy: y,
+          highlighted: isCurrState,
           nodeName,
           id,
           key,

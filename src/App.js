@@ -163,7 +163,7 @@ class App extends Component {
         outgoingTransitions: [],
       }};
     let stateObjects = ["start"];
-    this.setState({ stateObjectsMap, stateObjects, selectedStateObjectId: undefined });
+    this.setState({ stateObjectsMap, stateObjects, selectedStateObjectId: undefined, currStateInDiagram: "start" });
   };
 
   changeCurrMode = (mode) => {
@@ -206,8 +206,6 @@ class App extends Component {
     var i;
     for( i = 0; i < targetNodeTransitions.length; i++){
       let currTransition = this.state.stateObjectsMap[targetNodeTransitions[i]];
-      console.log(currTransition);
-
       if(currTransition.eventType === eventType && currTransition.objectType === objectType){
         console.log( this.state.stateObjectsMap[stateId].nodeName + " already has a transition that handles " + eventType + " on " +objectType);
         return false;
@@ -221,67 +219,28 @@ class App extends Component {
     let currStateData = this.state.stateObjectsMap[currState];
     if (!currStateData.outgoingTransitions) return;
 
+    console.log(e.target);
+    let currObject = undefined;
+    if(e.target.className === "Workspace"){
+      currObject = "work space";
+    }
+    else{
+      currObject = "target"
+    }
+
     for (var i = 0; i < currStateData.outgoingTransitions.length; i++) {
       let transitionId = currStateData.outgoingTransitions[i];
-      let data = this.state.transitionData[transitionId];
+      let transitionData = this.state.stateObjectsMap[transitionId];
 
-      console.log(data.objectType + 'Object');
-      console.log(e.target.className);
-      if (data.eventType === 'mouse down') {
-        if (data.objectType + 'Object' === e.target.className) {
-          this.setState({ currStateInDiagram: data.endState});
-        }
-        else if (data.objectType === 'work space' && e.target.className === 'Workspace') {
-          this.setState({ currStateInDiagram: data.endState});
-        }
+      if(transitionData.eventType === "mouse down" && transitionData.objectType === currObject){
+        console.log(transitionData.eventType);
+        console.log(transitionData.objectType);
+        console.log(transitionData.behavior);
+        console.log(transitionData.endState);
+        this.setState({ currStateInDiagram: transitionData.endState});
       }
     }
-  }
-/* bindStateDiagram = () => {
-    window.addEventListener('mousedown', (e) => {
-      if (e.target.className === 'targetObject') {
-        let currState = this.state.currStateInDiagram;
-        let currStateData = this.state.stateObjectsMap[currState];
-        console.log(currStateData.outgoingTransitions.length);
-        for (var i = 0; i < currStateData.outgoingTransitions.length; i++) {
-          console.log(currStateData);
-          let transitionId = currStateData.outgoingTransitions[i];
-          let data = this.state.transitionData[transitionId];
-          if (data.eventType == 'mouse down') {
-            this.setState({ currStateInDiagram: data.endState});
-          }
-        }
-      }
-    });
-/*
-    window.addEventListener('mouseup', (e) => {
-      if (e.target.className === 'targetObject') {
-        if (!transitionsDict.mouseup) return;
-
-        var transition = transitionsDict.mouseup[this.state.currStateInDiagram];
-        if (transition) {
-          this.setState({ currStateInDiagram: transition });
-        }
-      }
-    });
-
-    window.addEventListener('dblclick', (e) => {
-      if (e.target.className === 'targetObject') {
-        if (!transitionsDict.dblclick) return;
-
-        var transition = transitionsDict.dblclick[this.state.currStateInDiagram];
-        if (transition) {
-          this.setState({ currStateInDiagram: transition });
-        }
-      }
-    });
-
-    window.addEventListener('mousemove', (e) => {
-      if (this.currStateInDiagram === 'moving') {
-        //move selected object
-      }
-    });
-} */
+  };
 
   render() {
     const {
@@ -290,6 +249,7 @@ class App extends Component {
       currEventType,
       currBehavior,
       currObjectType,
+      currStateInDiagram,
       stateObjects,
       stateObjectsMap,
       selectedStateObjectId,
@@ -310,6 +270,7 @@ class App extends Component {
             currBehavior,
             changeCurrBehavior: this.changeCurrBehavior,
             currObjectType,
+            currStateInDiagram,
             changeCurrObjectType: this.changeCurrObjectType,
             resetStateDiagram: this.resetStateDiagram,
 
@@ -331,7 +292,6 @@ class App extends Component {
             },
             deleteSelectedStateObject: this.deleteSelectedStateObject,
             noConflictingTransitions: this.noConflictingTransitions,
-            // bindStateDiagram: this.bindStateDiagram
             onMouseDown: this.onMouseDown,
           }}
         >
