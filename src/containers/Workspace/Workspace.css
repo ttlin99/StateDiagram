@@ -17,27 +17,6 @@
   box-sizing: border-box;
 }
 
-#box1 {
-  top: 20px;
-  left: 20px;
-  width: 100px;
-  height: 100px;
-}
-
-#box2 {
-  top: 20px;
-  left: 220px;
-  width: 100px;
-  height: 100px;
-}
-
-#box3 {
-  top: 20px;
-  left: 420px;
-  width: 100px;
-  height: 100px;
-}
-
 #workspace-canvas,
 #workspace-svg {
   position: absolute;

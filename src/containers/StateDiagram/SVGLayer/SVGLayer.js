@@ -42,8 +42,7 @@ const SVGLayer = () => {
   });
 
   const handleDoubleClick = (e) => {
-    console.log(e.target.cx);
-    if(currMode === "transition" && e.target.tagName === "ellipse"){
+    if(currMode === "transition" && e.target.tagName === "ellipse" && noConflictingTransitions(startState, currEventType, currObjectType)){
       addStateObject({
         type: currMode,
         visible: true,
@@ -55,7 +54,6 @@ const SVGLayer = () => {
         startState: e.target.id,
         endState: e.target.id
       });
-
     }
   }
 

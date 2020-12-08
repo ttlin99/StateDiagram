@@ -17,6 +17,7 @@ class App extends Component {
     currEventType: defaultValues.eventType,
     currBehavior: defaultValues.behavior,
     currObjectType: defaultValues.objectType,
+    currWorkspaceSelection: undefined,
 
     // workspace
     stateObjects: ["start"],
@@ -44,10 +45,6 @@ class App extends Component {
     // state diagram
     currStateInDiagram: "start",
   };
-
-  constructor() {
-    super();
-  }
 
   // add the shapeId to the array, and the shape itself to the map
   addStateObject = (shapeData) => {
@@ -206,7 +203,7 @@ class App extends Component {
     var i;
     for( i = 0; i < targetNodeTransitions.length; i++){
       let currTransition = this.state.stateObjectsMap[targetNodeTransitions[i]];
-      if(currTransition.eventType === eventType && currTransition.objectType === objectType){
+      if(currTransition.visible && currTransition.eventType === eventType && currTransition.objectType === objectType){
         console.log( this.state.stateObjectsMap[stateId].nodeName + " already has a transition that handles " + eventType + " on " +objectType);
         return false;
       }
@@ -214,12 +211,52 @@ class App extends Component {
     return true;
   };
 
-  onMouseDown = (e) => {
+  doAction = (behavior, event) => {
+    switch(behavior){
+      case "none":
+        break;
+      case "select target":
+        if(event.target.className === "targetObject"){
+          let currTarget = document.getElementById(event.target.id);
+          let prevSelection = this.state.currWorkspaceSelection;
+          if(prevSelection){
+            prevSelection.style.background = "red";
+          }
+          if(currTarget){
+            currTarget.style.background = "blue";
+          }
+          this.setState({ currWorkspaceSelection: currTarget });
+        }
+        break;
+      case "deselect target":
+        let prevSelection = this.state.currWorkspaceSelection;
+        if(prevSelection){
+          prevSelection.style.background = "red";
+        }
+        this.setState({ currWorkspaceSelection: undefined });
+        break;
+      case "move target":
+        let currTarget = document.getElementById(event.target.id);
+        console.log(event.nativeEvent);
+        if(currTarget){
+          console.log(currTarget)
+          currTarget.style.left = event.nativeEvent.clientX;
+
+          console.log(currTarget)
+          currTarget.style.top = event.nativeEvent.clientY;
+        }
+        break;
+      default:
+
+    }
+  }
+
+  handleEventInput = (e) => {
+    let currEvent = e.type;
     let currState = this.state.currStateInDiagram;
     let currStateData = this.state.stateObjectsMap[currState];
     if (!currStateData.outgoingTransitions) return;
 
-    console.log(e.target);
     let currObject = undefined;
     if(e.target.className === "Workspace"){
       currObject = "work space";
@@ -231,15 +268,44 @@ class App extends Component {
     for (var i = 0; i < currStateData.outgoingTransitions.length; i++) {
       let transitionId = currStateData.outgoingTransitions[i];
       let transitionData = this.state.stateObjectsMap[transitionId];
-
-      if(transitionData.eventType === "mouse down" && transitionData.objectType === currObject){
-        console.log(transitionData.eventType);
-        console.log(transitionData.objectType);
-        console.log(transitionData.behavior);
-        console.log(transitionData.endState);
-        this.setState({ currStateInDiagram: transitionData.endState});
+      if(transitionData.visible){
+      switch(currEvent) {
+        case "mousemove":
+          if(transitionData.eventType === "mouse move" && transitionData.objectType === currObject){
+            this.doAction(transitionData.behavior, e);
+            this.setState({ currStateInDiagram: transitionData.endState});
+          }
+          break;
+        case "mousedown":
+          if(transitionData.eventType === "mouse down" && transitionData.objectType === currObject){
+            this.doAction(transitionData.behavior, e);
+            this.setState({ currStateInDiagram: transitionData.endState});
+          }
+          break;
+        case "mouseup":
+          if(transitionData.eventType === "mouse up" && transitionData.objectType === currObject){
+            this.doAction(transitionData.behavior, e);
+            this.setState({ currStateInDiagram: transitionData.endState});
+          }
+          break;
+        case "click":
+          if(transitionData.eventType === "click" && transitionData.objectType === currObject){
+            this.doAction(transitionData.behavior, e);
+            this.setState({ currStateInDiagram: transitionData.endState});
+          }
+          break;
+        case "dblclick":
+          if(transitionData.eventType === "double click" && transitionData.objectType === currObject){
+            this.doAction(transitionData.behavior, e);
+            this.setState({ currStateInDiagram: transitionData.endState});
+          }
+          break;
+        default:
+          // code block
+        }
       }
     }
+
   };
 
   render() {
@@ -292,7 +358,7 @@ class App extends Component {
             },
             deleteSelectedStateObject: this.deleteSelectedStateObject,
             noConflictingTransitions: this.noConflictingTransitions,
-            onMouseDown: this.onMouseDown,
+            handleEventInput: this.handleEventInput,
           }}
         >
           <ControlPanel />
