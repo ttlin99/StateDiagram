@@ -9,7 +9,7 @@ export default ({ id, x1, x2, y1, y2, filter }) => {
       y1={y1}
       x2={x2}
       y2={y2}
-      stroke="black"
+      stroke="blue"
       strokeWidth="3"
       filter={filter}
     />

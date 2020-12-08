@@ -88,7 +88,7 @@ class App extends Component {
 
       }
     }
-    this.setState({ stateObjects, stateObjectsMap, transitionData, selectedStateObjectId: id });
+    this.setState({ stateObjects, stateObjectsMap, transitionData});
   };
 
   // get the shape by its id, and update its properties
@@ -199,6 +199,21 @@ class App extends Component {
       this.updateStateObject(this.state.selectedStateObjectId, { objectType });
       this.updateTransitionData(this.state.selectedStateObjectId, { objectType });
     }
+  };
+
+  noConflictingTransitions = (stateId, eventType, objectType) => {
+    let targetNodeTransitions = this.state.stateObjectsMap[stateId].outgoingTransitions;
+    var i;
+    for( i = 0; i < targetNodeTransitions.length; i++){
+      let currTransition = this.state.stateObjectsMap[targetNodeTransitions[i]];
+      console.log(currTransition);
+
+      if(currTransition.eventType === eventType && currTransition.objectType === objectType){
+        console.log( this.state.stateObjectsMap[stateId].nodeName + " already has a transition that handles " + eventType + " on " +objectType);
+        return false;
+      }
+    }
+    return true;
   };
 
   onMouseDown = (e) => {
@@ -315,6 +330,7 @@ class App extends Component {
               }
             },
             deleteSelectedStateObject: this.deleteSelectedStateObject,
+            noConflictingTransitions: this.noConflictingTransitions,
             // bindStateDiagram: this.bindStateDiagram
             onMouseDown: this.onMouseDown,
           }}

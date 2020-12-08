@@ -3,6 +3,7 @@ import React, { useEffect, useCallback, useContext, useState } from "react";
 import Transition from "./stateObjects/Transition";
 import Node from "./stateObjects/Node";
 import Line from "./stateObjects/Line";
+import Loop from "./stateObjects/Loop";
 
 
 import ControlContext from "../../../contexts/control-context";
@@ -21,6 +22,7 @@ const SVGLayer = () => {
     moveNode,
     selectedStateObjectId,
     selectStateObject,
+    noConflictingTransitions,
   } = useContext(ControlContext);
 
   // use useState to set elements in the React state directly
@@ -38,6 +40,24 @@ const SVGLayer = () => {
     y: undefined,
   });
 
+  const handleDoubleClick = (e) => {
+    console.log(e.target.cx);
+    if(currMode === "transition" && e.target.tagName === "ellipse"){
+      addStateObject({
+        type: currMode,
+        visible: true,
+        initCoords: { x: e.target.cx.baseVal.value, y: e.target.cy.baseVal.value },
+        finalCoords: { x: e.target.cx.baseVal.value, y: e.target.cy.baseVal.value },
+        eventType: currEventType,
+        objectType: currObjectType,
+        behavior: currBehavior,
+        startState: e.target.id,
+        endState: e.target.id
+      });
+
+    }
+  }
+
   const handleMouseDown = (e) => {
     if (currMode === "node") {
       setDrawing(true);
@@ -47,7 +67,6 @@ const SVGLayer = () => {
     }
     else if(currMode === "transition"){
       if(e.target.tagName  === "ellipse"){
-        console.log(e.target);
         setDrawing(true);
         setInitPoint({ x: e.target.cx.baseVal.value, y: e.target.cy.baseVal.value });
         setCurrPoint({ x: e.target.cx.baseVal.value, y: e.target.cy.baseVal.value });
@@ -115,7 +134,7 @@ const SVGLayer = () => {
       setCurrPoint({ x: undefined, y: undefined });
     }
     else if (currMode === "transition" && drawing) {
-      if(e.target.tagName === "ellipse" && e.target.id !== startState){
+      if(e.target.tagName === "ellipse" && e.target.id !== startState && noConflictingTransitions(startState, currEventType, currObjectType)){
         addStateObject({
           type: currMode,
           visible: true,
@@ -212,6 +231,21 @@ const SVGLayer = () => {
             filter,
           });
         }
+        else if(stateObjectData.startState === stateObjectData.endState){
+          let x = finalCoords.x;
+          let y = finalCoords.y;
+
+          return React.createElement(Loop, {
+            cx: x,
+            cy: y,
+            eventType,
+            objectType,
+            behavior,
+            id,
+            key,
+            filter,
+          });
+        }
         else{
           return React.createElement(Transition, {
             x1: initCoords.x,
@@ -225,7 +259,6 @@ const SVGLayer = () => {
             key,
             filter,
           });
-
         }
       }
       case "node": {
@@ -281,6 +314,7 @@ const SVGLayer = () => {
       height="400"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
+      onDoubleClick={handleDoubleClick}
       onMouseUp={handleMouseUp}
     >
       <filter

@@ -129,7 +129,7 @@ const Delete = ({ selectedStateObjectId, deleteSelectedStateObject, resetStateDi
       <div className="DeleteButtonsContainer">
         <button
           onClick={() => deleteSelectedStateObject()}
-          disabled={!selectedStateObjectId}
+          disabled={!selectedStateObjectId || selectedStateObjectId==="start"}
           style={{
             cursor: !selectedStateObjectId ? "not-allowed" : null,
           }}
@@ -138,7 +138,6 @@ const Delete = ({ selectedStateObjectId, deleteSelectedStateObject, resetStateDi
         </button>{" "}
         <button
           onClick={() => resetStateDiagram()}
-          disabled={!selectedStateObjectId}
           style={{
             cursor: !selectedStateObjectId ? "not-allowed" : null,
           }}
