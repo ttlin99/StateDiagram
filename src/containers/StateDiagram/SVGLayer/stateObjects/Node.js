@@ -4,27 +4,35 @@ export default ({
   id,
   cx,
   cy,
-  stateType,
+  nodeName,
+  highlighted,
   filter,
 }) => {
+  var borderColor;
+  if(highlighted){
+    borderColor = "yellow";
+  }
+  else{
+    borderColor = "black";
+  }
   return (
     <>
       <ellipse
         id={id}
         cx={cx}
         cy={cy}
-        rx={40}
-        ry={40}
+        rx={30}
+        ry={30}
         fill="white"
-        stroke="black"
+        stroke={borderColor}
         strokeWidth="2px"
         filter={filter}
       />
       <text
         x={cx}
         y={cy}
-        text-anchor="middle"
-      >{stateType}</text>
+        textAnchor="middle"
+      >{nodeName}</text>
     </>
   );
 };

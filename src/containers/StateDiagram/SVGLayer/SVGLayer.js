@@ -1,7 +1,9 @@
 import React, { useEffect, useCallback, useContext, useState } from "react";
 
 import Transition from "./stateObjects/Transition";
-import StateObject from "./stateObjects/StateObject";
+import Node from "./stateObjects/Node";
+import Line from "./stateObjects/Line";
+
 
 import ControlContext from "../../../contexts/control-context";
 import { selectShadowId } from "../../../shared/util";
@@ -9,12 +11,14 @@ import { selectShadowId } from "../../../shared/util";
 const SVGLayer = () => {
   const {
     currMode,
-    currStateType,
+    currNodeName,
     currEventType,
+    currObjectType,
+    currBehavior,
     stateObjects,
     stateObjectsMap,
     addStateObject,
-    moveStateObject,
+    moveNode,
     selectedStateObjectId,
     selectStateObject,
   } = useContext(ControlContext);
@@ -26,88 +30,118 @@ const SVGLayer = () => {
   const [initPoint, setInitPoint] = useState({ x: undefined, y: undefined });
   const [currPoint, setCurrPoint] = useState({ x: undefined, y: undefined });
 
+  const [startState, setStartState] = useState(undefined);
   const [dragging, setDragging] = useState(false);
-  const [draggingStateObject, setDraggingStateObject] = useState(undefined);
+  const [draggingNode, setDraggingNode] = useState(undefined);
   const [mouseDownPoint, setMouseDownPoint] = useState({
     x: undefined,
     y: undefined,
   });
 
   const handleMouseDown = (e) => {
-    if (currMode !== "select") {
-      // should create
+    if (currMode === "node") {
       setDrawing(true);
       setInitPoint({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
       setCurrPoint({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
       e.preventDefault();
-    } else {
+    }
+    else if(currMode === "transition"){
+      if(e.target.tagName  === "ellipse"){
+        console.log(e.target);
+        setDrawing(true);
+        setInitPoint({ x: e.target.cx.baseVal.value, y: e.target.cy.baseVal.value });
+        setCurrPoint({ x: e.target.cx.baseVal.value, y: e.target.cy.baseVal.value });
+        setStartState(e.target.id);
+        e.preventDefault();
+      }
+    }
+    else {
       // should select
       if (e.target.nodeName === "svg") {
         // deselect
         selectStateObject(undefined);
-      } else {
-        // select
-        const targetId = e.target.id;
-        selectStateObject(targetId);
-        setDragging(true);
-        setMouseDownPoint({
-          x: e.nativeEvent.offsetX,
-          y: e.nativeEvent.offsetY,
-        });
-        setDraggingStateObject(
-          stateObjectsMap[stateObjects.filter((stateObjectId) => stateObjectId === targetId)[0]]
-        );
-      }
+      } else if(e.target.tagName === "ellipse"){
+          const targetId = e.target.id;
+          selectStateObject(targetId);
+          setDragging(true);
+          setMouseDownPoint({
+            x: e.nativeEvent.offsetX,
+            y: e.nativeEvent.offsetY,
+          });
+          setDraggingNode(
+            stateObjectsMap[stateObjects.filter((stateObjectId) => stateObjectId === targetId)[0]]
+          );
+        }
+        else{
+          const targetId = e.target.id;
+          selectStateObject(targetId);
+        }
     }
   };
 
   const handleMouseMove = (e) => {
     if (drawing) {
       setCurrPoint({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
-    } else if (dragging && draggingStateObject) {
+    } else if (dragging && draggingNode) {
       const deltaX = e.nativeEvent.offsetX - mouseDownPoint.x;
       const deltaY = e.nativeEvent.offsetY - mouseDownPoint.y;
 
-      moveStateObject({
+      moveNode({
         initCoords: {
-          x: draggingStateObject.initCoords.x + deltaX,
-          y: draggingStateObject.initCoords.y + deltaY,
+          x: draggingNode.initCoords.x + deltaX,
+          y: draggingNode.initCoords.y + deltaY,
         },
         finalCoords: {
-          x: draggingStateObject.finalCoords.x + deltaX,
-          y: draggingStateObject.finalCoords.y + deltaY,
+          x: draggingNode.finalCoords.x + deltaX,
+          y: draggingNode.finalCoords.y + deltaY,
         },
       });
     }
   };
 
   const handleMouseUp = (e) => {
-    if (currMode !== "select") {
-
+    if (currMode === "node" && drawing) {
       addStateObject({
         type: currMode,
         visible: true,
         initCoords: initPoint,
         finalCoords: currPoint,
-        stateType: currStateType,
-        eventType: currEventType,
+        nodeName: currNodeName,
+        incomingTransitions: [],
+        outgoingTransitions: [],
       });
       setDrawing(false);
       setInitPoint({ x: undefined, y: undefined });
       setCurrPoint({ x: undefined, y: undefined });
     }
+    else if (currMode === "transition" && drawing) {
+      if(e.target.tagName === "ellipse" && e.target.id !== startState){
+        addStateObject({
+          type: currMode,
+          visible: true,
+          initCoords: initPoint,
+          finalCoords: { x: e.target.cx.baseVal.value, y: e.target.cy.baseVal.value },
+          eventType: currEventType,
+          objectType: currObjectType,
+          behavior: currBehavior,
+          startState: startState,
+          endState: e.target.id
+        });
+        setStartState(undefined);
+      }
+
+      setDrawing(false);
+      setInitPoint({ x: undefined, y: undefined });
+      setCurrPoint({ x: undefined, y: undefined });
+    }
     else if (dragging){
-      let finalValues = {
-        x: e.nativeEvent.offsetX,
-        y: e.nativeEvent.offsetY,
-      };
       setDragging(false);
-      setDraggingStateObject(undefined);
+      setDraggingNode(undefined);
       setMouseDownPoint({ x: undefined, y: undefined });
     }
     else {
       setDragging(false);
-      setDraggingStateObject(undefined);
+      setDraggingNode(undefined);
       setMouseDownPoint({ x: undefined, y: undefined });
     }
   };
@@ -124,23 +158,23 @@ const SVGLayer = () => {
           setInitPoint({ x: undefined, y: undefined });
           setCurrPoint({ x: undefined, y: undefined });
         } else if (dragging) {
-          moveStateObject({
+          moveNode({
             initCoords: {
-              x: draggingStateObject.initCoords.x,
-              y: draggingStateObject.initCoords.y,
+              x: draggingNode.initCoords.x,
+              y: draggingNode.initCoords.y,
             },
             finalCoords: {
-              x: draggingStateObject.finalCoords.x,
-              y: draggingStateObject.finalCoords.y,
+              x: draggingNode.finalCoords.x,
+              y: draggingNode.finalCoords.y,
             },
           });
           setDragging(false);
-          setDraggingStateObject(undefined);
+          setDraggingNode(undefined);
           setMouseDownPoint({ x: undefined, y: undefined });
         }
       }
     },
-    [drawing, dragging, draggingStateObject, moveStateObject]
+    [drawing, dragging, draggingNode, moveNode]
   );
 
   // useEffect will run after the render is committed to the screen
@@ -151,12 +185,14 @@ const SVGLayer = () => {
     return () => window.removeEventListener("keydown", escKeyDownHandler, true);
   }, [escKeyDownHandler]);
 
-  const genStateObject = (stateObjectData, key = undefined) => {
+  const genStateObject = (stateObjectData, temp, key = undefined) => {
     const {
       initCoords,
       finalCoords,
-      stateType,
+      nodeName,
       eventType,
+      objectType,
+      behavior,
       id,
     } = stateObjectData;
     const filter =
@@ -165,26 +201,41 @@ const SVGLayer = () => {
         : null;
     switch (stateObjectData.type) {
       case "transition": {
-        return React.createElement(Transition, {
-          x1: initCoords.x,
-          y1: initCoords.y,
-          x2: finalCoords.x,
-          y2: finalCoords.y,
-          eventType,
-          id,
-          key,
-          filter,
-        });
+        if(temp){
+          return React.createElement(Line, {
+            x1: initCoords.x,
+            y1: initCoords.y,
+            x2: finalCoords.x,
+            y2: finalCoords.y,
+            id,
+            key,
+            filter,
+          });
+        }
+        else{
+          return React.createElement(Transition, {
+            x1: initCoords.x,
+            y1: initCoords.y,
+            x2: finalCoords.x,
+            y2: finalCoords.y,
+            eventType,
+            objectType,
+            behavior,
+            id,
+            key,
+            filter,
+          });
+
+        }
       }
-      case "stateObject": {
+      case "node": {
         let x = finalCoords.x;
         let y = finalCoords.y;
 
-        return React.createElement(StateObject, {
+        return React.createElement(Node, {
           cx: x,
           cy: y,
-          eventType,
-          stateType,
+          nodeName,
           id,
           key,
           filter,
@@ -198,7 +249,7 @@ const SVGLayer = () => {
 
   const renderStateObject = (stateObjectData, key) => {
     if (stateObjectData.visible) {
-      return genStateObject(stateObjectData, key);
+      return genStateObject(stateObjectData, false, key);
     } else {
       return null;
     }
@@ -215,9 +266,11 @@ const SVGLayer = () => {
         type: currMode,
         initCoords: initPoint,
         finalCoords: currPoint,
-        stateType: currStateType,
+        nodeName: currNodeName,
         eventType: currEventType,
-      });
+        objectType: currObjectType,
+        behavior: currBehavior,
+      }, true);
     }
   };
 
@@ -245,9 +298,17 @@ const SVGLayer = () => {
         />
       </filter>
       {stateObjects.map((stateObjectId, idx) => {
-        return renderStateObject(stateObjectsMap[stateObjectId], idx);
+        if(stateObjectsMap[stateObjectId].type === "transition"){
+          return renderStateObject(stateObjectsMap[stateObjectId], idx);
+        }
       })}
       {drawing && renderTempStateObject()}
+
+      {stateObjects.map((stateObjectId, idx) => {
+        if(stateObjectsMap[stateObjectId].type === "node"){
+          return renderStateObject(stateObjectsMap[stateObjectId], idx);
+        }
+      })}
     </svg>
   );
 };

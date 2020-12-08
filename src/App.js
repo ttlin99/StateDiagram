@@ -13,13 +13,24 @@ class App extends Component {
   state = {
     // controls
     currMode: defaultValues.mode,
-    currStateType: defaultValues.stateType,
+    currStateObjectName: defaultValues.nodeName,
     currEventType: defaultValues.eventType,
+    currBehavior: defaultValues.behavior,
     currObjectType: defaultValues.objectType,
 
     // workspace
-    stateObjects: [],
-    stateObjectsMap: {},
+    stateObjects: ["start"],
+    stateObjectsMap: {
+      start: {
+        finalCoords: {x: 100, y: 100},
+        id: "start",
+        initCoords: {x: 100, y: 100},
+        nodeName: "0",
+        type: "node",
+        visible: true,
+        incomingTransitions: [],
+        outgoingTransitions: [],
+      }},
     selectedStateObjectId: undefined,
 
     // handling undo/redo
@@ -44,6 +55,28 @@ class App extends Component {
       id,
     };
     stateObjects.push(id);
+    if(shapeData.type === "transition"){
+      let startStateId = shapeData.startState;
+      let endStateId = shapeData.endState;
+      let startStateData = stateObjectsMap[startStateId];
+      let endStateData = stateObjectsMap[endStateId];
+      if(startStateData && endStateData){
+        let startStateOutgoing = startStateData.outgoingTransitions;
+        let endStateIncoming = endStateData.incomingTransitions;
+        startStateOutgoing.push(id);
+        endStateIncoming.push(id);
+
+        stateObjectsMap[startStateId] = {
+          ...startStateData,
+          outgoingTransitions: startStateOutgoing,
+        };
+
+        stateObjectsMap[endStateId] = {
+          ...endStateData,
+          incomingTransitions: endStateIncoming,
+        };
+      }
+    }
     this.setState({ stateObjects, stateObjectsMap, selectedStateObjectId: id });
   };
 
@@ -55,9 +88,24 @@ class App extends Component {
     this.setState({ stateObjectsMap });
   };
 
-  moveStateObject = (newData) => {
+  moveNode = (newData) => {
     if (this.state.selectedStateObjectId) {
-      this.updateStateObject(this.state.selectedStateObjectId, newData);
+      let stateObjectsMap = { ...this.state.stateObjectsMap };
+      let targetStateObject = stateObjectsMap[this.state.selectedStateObjectId];
+      stateObjectsMap[this.state.selectedStateObjectId] = { ...targetStateObject, ...newData };
+      if(targetStateObject.type === "node"){
+        for(var i = 0; i < targetStateObject.incomingTransitions.length; i++){
+          let currId = targetStateObject.incomingTransitions[i];
+          let currTransitionData = stateObjectsMap[currId];
+          stateObjectsMap[currId] = {...currTransitionData, finalCoords: newData.finalCoords,};
+        }
+        for(var j = 0; j < targetStateObject.outgoingTransitions.length; j++){
+          let currId = targetStateObject.outgoingTransitions[j];
+          let currTransitionData = stateObjectsMap[currId];
+          stateObjectsMap[currId] = {...currTransitionData, initCoords: newData.finalCoords,};
+        }
+      }
+      this.setState({ stateObjectsMap });
     }
   };
 
@@ -68,14 +116,20 @@ class App extends Component {
     this.setState({ stateObjectsMap, selectedStateObjectId: undefined });
   };
 
+  resetStateDiagram = () => {
+    let stateObjectsMap = {};
+    let stateObjects = []
+    this.setState({ stateObjectsMap, stateObjects, selectedStateObjectId: undefined });
+  };
+
   changeCurrMode = (mode) => {
     this.setState({ currMode: mode });
   };
 
-  changeCurrStateType = (stateType) => {
-    this.setState({ currStateType: stateType });
+  changeCurrNodeName = (nodeName) => {
+    this.setState({ currNodeName: nodeName });
     if (this.state.selectedStateObjectId) {
-      this.updateStateObject(this.state.selectedStateObjectId, { stateType });
+      this.updateStateObject(this.state.selectedStateObjectId, { nodeName });
     }
   };
 
@@ -83,6 +137,13 @@ class App extends Component {
     this.setState({ currEventType: eventType });
     if (this.state.selectedStateObjectId) {
       this.updateStateObject(this.state.selectedStateObjectId, { eventType });
+    }
+  };
+
+  changeCurrBehavior = (behavior) => {
+    this.setState({ currBehavior: behavior });
+    if (this.state.selectedStateObjectId) {
+      this.updateStateObject(this.state.selectedStateObjectId, { behavior });
     }
   };
 
@@ -146,8 +207,9 @@ class App extends Component {
   render() {
     const {
       currMode,
-      currStateType,
+      currNodeName,
       currEventType,
+      currBehavior,
       currObjectType,
       stateObjects,
       stateObjectsMap,
@@ -162,27 +224,29 @@ class App extends Component {
           value={{
             currMode,
             changeCurrMode: this.changeCurrMode,
-            currStateType,
-            changeCurrStateType: this.changeCurrStateType,
+            currNodeName,
+            changeCurrNodeName: this.changeCurrNodeName,
             currEventType,
             changeCurrEventType: this.changeCurrEventType,
+            currBehavior,
+            changeCurrBehavior: this.changeCurrBehavior,
             currObjectType,
             changeCurrObjectType: this.changeCurrObjectType,
+            resetStateDiagram: this.resetStateDiagram,
 
             stateObjects,
             stateObjectsMap,
             addStateObject: this.addStateObject,
-            moveStateObject: this.moveStateObject,
+            moveNode: this.moveNode,
             selectedStateObjectId,
             selectStateObject: (id) => {
               this.setState({ selectedStateObjectId: id });
               if (id) {
-                const { stateType, eventType } = stateObjectsMap[
+                const { nodeName } = stateObjectsMap[
                   stateObjects.filter((stateObjectId) => stateObjectId === id)[0]
                 ];
                 this.setState({
-                  currStateType: stateType,
-                  currEventType: eventType,
+                  currNodeName: nodeName,
                 });
               }
             },

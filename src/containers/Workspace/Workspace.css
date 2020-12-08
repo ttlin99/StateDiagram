@@ -1,15 +1,13 @@
 .Workspace {
   position: absolute;
-  top: 410px;
-  left: 310px;
+  top: 50vh;
+  left: 33vw;
 
-  box-sizing: border-box;
+  border-radius: 10px;
   border: 1px solid black;
-  border-left-width: 0px;
-  background-color: white;
 
-  width: 800px;
-  height: 300px;
+  width: 60vw;
+  height: 40vh;
 }
 
 .targetObject {

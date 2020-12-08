@@ -1,15 +1,13 @@
 .StateDiagram {
   position: absolute;
-  top: 10px;
-  left: 310px;
+  top: 3vh;
+  left: 33vw;
 
-  box-sizing: border-box;
+  border-radius: 10px;
   border: 1px solid black;
-  border-left-width: 0px;
-  background-color: white;
 
-  width: 800px;
-  height: 400px;
+  width: 60vw;
+  height: 45vh;
 }
 
 #state-diagram-canvas,

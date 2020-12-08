@@ -8,8 +8,9 @@ export const genId = () => {
 export const selectShadowId = "select-shadow";
 
 export const defaultValues = {
-  mode: "stateObject",
+  mode: "node",
   stateType: "default",
-  eventType: "mouse-down",
-  objectType: "work space"
+  eventType: "mouse down",
+  objectType: "work space",
+  behavior: "none",
 };

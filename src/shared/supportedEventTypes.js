@@ -1,8 +1,7 @@
 export default [
-  "mouse-down",
-  "mouse-up",
+  "mouse down",
+  "mouse up",
   "click",
-  "double-click",
-  "mouse-move",
-  "key-press",
+  "double click",
+  "mouse move",
 ];

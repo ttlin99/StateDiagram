@@ -4,10 +4,10 @@ import { FaTrash } from "react-icons/fa";
 
 import CursorImg from "../../assets/img/cursor.png";
 import TransitionImg from "../../assets/img/transition.png";
-import StateObjectImg from "../../assets/img/state.png";
-import supportedStateTypes from "../../shared/supportedStateTypes";
+import NodeImg from "../../assets/img/state.png";
 import supportedEventTypes from "../../shared/supportedEventTypes";
 import supportedObjectTypes from "../../shared/supportedObjectTypes";
+import supportedBehaviors from "../../shared/supportedBehaviors";
 import ControlContext from "../../contexts/control-context";
 
 import "./ControlPanel.css";
@@ -28,10 +28,10 @@ const Modes = ({
           <img src={CursorImg} alt="cursor" />
         </div>
         <div
-          className={["Mode", currMode === "stateObject" ? "Active" : null].join(" ")}
-          onClick={() => changeCurrMode("stateObject")}
+          className={["Mode", currMode === "node" ? "Active" : null].join(" ")}
+          onClick={() => changeCurrMode("node")}
         >
-          <img src={StateObjectImg} alt="stateObject" />
+          <img src={NodeImg} alt="node" />
 
         </div>
         <div
@@ -68,17 +68,23 @@ const OptionPicker = ({ title, currSelected, setOption, allOptions }) => {
   );
 };
 
-const StateType = ({
-  currStateType,
-  changeCurrStateType,
+const NodeName = ({
+  currNodeName,
+  changeCurrNodeName,
 }) => {
   return (
-    <OptionPicker
-      title={"State Type:"}
-      currSelected={currStateType}
-      setOption={changeCurrStateType}
-      allOptions={supportedStateTypes}
-    />
+    <form className="form">
+      <label for="nodeName">Name: </label>
+      <input
+        type="text"
+        name="nodeName"
+        placeholder="Enter State Name"
+        value={currNodeName}
+        onChange={(e) => {
+          changeCurrNodeName(e.target.value);
+        }}
+      />
+  </form>
   );
 };
 
@@ -104,8 +110,19 @@ const ObjectType = ({ currObjectType, changeCurrObjectType }) => {
   );
 };
 
+const Behavior = ({ currBehavior, changeCurrBehavior }) => {
+  return (
+    <OptionPicker
+      title={"Behavior:"}
+      currSelected={currBehavior}
+      setOption={changeCurrBehavior}
+      allOptions={supportedBehaviors}
+    />
+  );
+};
 
-const Delete = ({ selectedStateObjectId, deleteSelectedStateObject }) => {
+
+const Delete = ({ selectedStateObjectId, deleteSelectedStateObject, resetStateDiagram }) => {
   return (
     <div className="Control">
       <h3>Delete:</h3>
@@ -118,6 +135,15 @@ const Delete = ({ selectedStateObjectId, deleteSelectedStateObject }) => {
           }}
         >
           <FaTrash className="ButtonIcon" /> Delete
+        </button>{" "}
+        <button
+          onClick={() => resetStateDiagram()}
+          disabled={!selectedStateObjectId}
+          style={{
+            cursor: !selectedStateObjectId ? "not-allowed" : null,
+          }}
+        >
+          <FaTrash className="ButtonIcon" /> Reset
         </button>{" "}
       </div>
     </div>
@@ -140,12 +166,15 @@ const ControlPanel = () => {
   const {
     currMode,
     changeCurrMode,
-    currStateType,
-    changeCurrStateType,
+    currNodeName,
+    changeCurrNodeName,
     currEventType,
     changeCurrEventType,
     currObjectType,
     changeCurrObjectType,
+    currBehavior,
+    changeCurrBehavior,
+    resetStateDiagram,
     selectedStateObjectId,
     deleteSelectedStateObject,
     bindStateDiagram,
@@ -167,13 +196,18 @@ const ControlPanel = () => {
                     changeCurrObjectType={changeCurrObjectType}
                   />
 
+                  <Behavior
+                    currBehavior={currBehavior}
+                    changeCurrBehavior={changeCurrBehavior}
+                  />
+
                   </>
     );
   }
-  else if(currMode === "stateObject"){
-    currOptions = <StateType
-                    currStateType={currStateType}
-                    changeCurrStateType={changeCurrStateType}
+  else if(currMode === "node"){
+    currOptions = <NodeName
+                    currNodeName={currNodeName}
+                    changeCurrNodeName={changeCurrNodeName}
                   />
   }
 
@@ -182,7 +216,7 @@ const ControlPanel = () => {
       <Modes
         currMode={currMode}
         changeCurrMode={changeCurrMode}
-        currStateType={currStateType}
+        currNodeName={currNodeName}
         currEventType={currEventType}
       />
 
@@ -191,6 +225,7 @@ const ControlPanel = () => {
       <Delete
         selectedStateObjectId={selectedStateObjectId}
         deleteSelectedStateObject={deleteSelectedStateObject}
+        resetStateDiagram={resetStateDiagram}
       />
 
       <Run
