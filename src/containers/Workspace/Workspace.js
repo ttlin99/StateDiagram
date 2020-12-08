@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import Target from "./Target"
+import ControlContext from "../../contexts/control-context";
 
 import "./Workspace.css";
 
 const Workspace = () => {
+  const {
+    onMouseDown
+  } = useContext(ControlContext);
+  
   return (
-    <div className="Workspace">
+    <div className="Workspace" onMouseDown={onMouseDown}>
       <div
         className="targetObject"
         id="box1"

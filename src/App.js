@@ -34,7 +34,7 @@ class App extends Component {
       }},
     selectedStateObjectId: undefined,
 
-    // maps transitionId to transition data: eventType, behavior, object
+    // maps transitionId to transition data: eventType, behavior, object, endState
     transitionData: {},
 
     // handling undo/redo
@@ -42,7 +42,7 @@ class App extends Component {
     currCommand: -1,
 
     // state diagram
-    currStateInDiagram: defaultValues.stateDiagramStart,
+    currStateInDiagram: "start",
   };
 
   constructor() {
@@ -73,7 +73,8 @@ class App extends Component {
         endStateIncoming.push(id);
         transitionData[id] = ({ eventType: this.state.currEventType,
                                 behavior: this.state.currBehavior,
-                                object: this.state.currObjectType });
+                                objectType: this.state.currObjectType,
+                                endState: endStateId});
 
         stateObjectsMap[startStateId] = {
           ...startStateData,
@@ -200,26 +201,44 @@ class App extends Component {
     }
   };
 
-  bindStateDiagram = () => {
+  onMouseDown = (e) => {
+    let currState = this.state.currStateInDiagram;
+    let currStateData = this.state.stateObjectsMap[currState];
+    if (!currStateData.outgoingTransitions) return;
 
-    //placeholder for actual transitions parsed from state diagram drawn by user
-    var transitionsDict = {
-      mousedown: {"default": "moving"},
-      mouseup: {"moving": "dblclick"},
+    for (var i = 0; i < currStateData.outgoingTransitions.length; i++) {
+      let transitionId = currStateData.outgoingTransitions[i];
+      let data = this.state.transitionData[transitionId];
 
-    };
-
+      console.log(data.objectType + 'Object');
+      console.log(e.target.className);
+      if (data.eventType === 'mouse down') {
+        if (data.objectType + 'Object' === e.target.className) {
+          this.setState({ currStateInDiagram: data.endState});
+        }
+        else if (data.objectType === 'work space' && e.target.className === 'Workspace') {
+          this.setState({ currStateInDiagram: data.endState});
+        }
+      }
+    }
+  }
+/* bindStateDiagram = () => {
     window.addEventListener('mousedown', (e) => {
       if (e.target.className === 'targetObject') {
-        if (!transitionsDict.mousedown) return;
-
-        var transition = transitionsDict.mousedown[this.state.currStateInDiagram];
-        if (transition) {
-          this.setState({ currStateInDiagram: transition });
+        let currState = this.state.currStateInDiagram;
+        let currStateData = this.state.stateObjectsMap[currState];
+        console.log(currStateData.outgoingTransitions.length);
+        for (var i = 0; i < currStateData.outgoingTransitions.length; i++) {
+          console.log(currStateData);
+          let transitionId = currStateData.outgoingTransitions[i];
+          let data = this.state.transitionData[transitionId];
+          if (data.eventType == 'mouse down') {
+            this.setState({ currStateInDiagram: data.endState});
+          }
         }
       }
     });
-
+/*
     window.addEventListener('mouseup', (e) => {
       if (e.target.className === 'targetObject') {
         if (!transitionsDict.mouseup) return;
@@ -247,8 +266,7 @@ class App extends Component {
         //move selected object
       }
     });
-
-  }
+} */
 
   render() {
     const {
@@ -297,7 +315,8 @@ class App extends Component {
               }
             },
             deleteSelectedStateObject: this.deleteSelectedStateObject,
-            bindStateDiagram: this.bindStateDiagram
+            // bindStateDiagram: this.bindStateDiagram
+            onMouseDown: this.onMouseDown,
           }}
         >
           <ControlPanel />
