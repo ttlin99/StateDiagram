@@ -2,5 +2,6 @@ export default [
   "none",
   "select target",
   "deselect target",
-  "move target",
+  "move selected",
+  "create box",
 ];
