@@ -18,6 +18,7 @@ class App extends Component {
     currBehavior: defaultValues.behavior,
     currObjectType: defaultValues.objectType,
     currWorkspaceSelection: undefined,
+    currWorkspaceMoving: undefined,
 
     // workspace
     stateObjects: ["start"],
@@ -147,7 +148,11 @@ class App extends Component {
       }
     }
 
+    if(this.currStateInDiagram === this.state.selectedStateObjectId){
+      this.setState({ stateObjectsMap, selectedStateObjectId: undefined, currStateInDiagram: 'start' });
+    }
     this.setState({ stateObjectsMap, selectedStateObjectId: undefined });
+
   };
 
   resetStateDiagram = () => {
@@ -261,6 +266,43 @@ class App extends Component {
               if (0 <= xTransform && xTransform + 100 <= right && 0 <= yTransform && yTransform + 100 <= bottom) {
                 currTarget.style.left = xTransform + 'px';
                 currTarget.style.top = yTransform + 'px';
+              }
+            }
+        }
+        break;
+      case "start move object":
+        if(event.target.className === "targetObject"){
+          let currTarget = document.getElementById(event.target.id);
+          this.setState({ currWorkspaceMoving: currTarget });
+        }
+        break;
+      break;
+      case "stop move object":
+        this.setState({ currWorkspaceMoving: undefined });
+        break;
+      case "move object":
+        let currMoving = this.state.currWorkspaceMoving;
+        if(currMoving){
+            let workspace = document.getElementById("Workspace");
+            if (event.target.className == 'Workspace') {
+              let xTransform = event.nativeEvent.offsetX - 50;
+              let yTransform = event.nativeEvent.offsetY - 50;
+              let right = workspace.clientWidth;
+              let bottom = workspace.clientHeight;
+              if (0 <= xTransform  && xTransform + 100 <= right && 0 <= yTransform && yTransform + 100 <= bottom) {
+                currMoving.style.left = xTransform + "px";
+                currMoving.style.top = yTransform + "px";
+              }
+            }
+            else {
+              let container = document.getElementById(event.target.id);
+              let xTransform = event.nativeEvent.offsetX + parseInt(container.style.left,10) - 50;
+              let yTransform = event.nativeEvent.offsetY + parseInt(container.style.top,10) - 50;
+              let right = workspace.clientWidth;
+              let bottom = workspace.clientHeight;
+              if (0 <= xTransform && xTransform + 100 <= right && 0 <= yTransform && yTransform + 100 <= bottom) {
+                currMoving.style.left = xTransform + 'px';
+                currMoving.style.top = yTransform + 'px';
               }
             }
         }
