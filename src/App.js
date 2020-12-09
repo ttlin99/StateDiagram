@@ -44,6 +44,9 @@ class App extends Component {
 
     // state diagram
     currStateInDiagram: "start",
+
+    //num of boxes in workspace currently
+    numBoxes: 3,
   };
 
   // add the shapeId to the array, and the shape itself to the map
@@ -275,8 +278,10 @@ class App extends Component {
             box.style.height = "100px";
             box.style.left = xTransform + 'px';
             box.style.top = yTransform + 'px';
-            box.className = "targetObject";
+            box.classList.add("targetObject");
+            box.id = 'box' + (this.state.numBoxes + 1);
             workspace.appendChild(box);
+            this.setState({numBoxes: this.state.numBoxes + 1});
           }
         }
         else {
@@ -291,8 +296,10 @@ class App extends Component {
             box.style.height = "100px";
             box.style.left = xTransform + 'px';
             box.style.top = yTransform + 'px';
-            box.className = "targetObject";
+            box.classList.add("targetObject");
+            box.id = 'box' + (this.state.numBoxes + 1);
             workspace.appendChild(box);
+            this.setState({numBoxes: this.state.numBoxes + 1});
           }
         }
 
