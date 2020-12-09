@@ -236,14 +236,30 @@ class App extends Component {
         this.setState({ currWorkspaceSelection: undefined });
         break;
       case "move target":
-        let currTarget = document.getElementById(event.target.id);
-        console.log(event.nativeEvent);
+        let currTarget = this.state.currWorkspaceSelection;
         if(currTarget){
-          console.log(currTarget)
-          currTarget.style.left = event.nativeEvent.clientX;
-
-          console.log(currTarget)
-          currTarget.style.top = event.nativeEvent.clientY;
+            let workspace = document.getElementById("Workspace");
+            if (event.target.className == 'Workspace') {
+              let xTransform = event.nativeEvent.offsetX - 50;
+              let yTransform = event.nativeEvent.offsetY - 50;
+              let right = workspace.clientWidth;
+              let bottom = workspace.clientHeight;
+              if (0 <= xTransform  && xTransform + 100 <= right && 0 <= yTransform && yTransform + 100 <= bottom) {
+                currTarget.style.left = xTransform + "px";
+                currTarget.style.top = yTransform + "px";
+              }
+            }
+            else {
+              let container = document.getElementById(event.target.id);
+              let xTransform = event.nativeEvent.offsetX + parseInt(container.style.left,10) - 50;
+              let yTransform = event.nativeEvent.offsetY + parseInt(container.style.top,10) - 50;
+              let right = workspace.clientWidth;
+              let bottom = workspace.clientHeight;
+              if (0 <= xTransform && xTransform + 100 <= right && 0 <= yTransform && yTransform + 100 <= bottom) {
+                currTarget.style.left = xTransform + 'px';
+                currTarget.style.top = yTransform + 'px';
+              }
+            }
         }
         break;
       default:

@@ -10,7 +10,7 @@ const Workspace = () => {
   } = useContext(ControlContext);
 
   return (
-    <div className="Workspace" onMouseDown={handleEventInput} onMouseUp={handleEventInput} onClick={handleEventInput} onDoubleClick={handleEventInput} onMouseMove={handleEventInput}>
+    <div className="Workspace" id="Workspace" onMouseDown={handleEventInput} onMouseUp={handleEventInput} onClick={handleEventInput} onDoubleClick={handleEventInput} onMouseMove={handleEventInput}>
       <div
         className="targetObject"
         id="box1"
