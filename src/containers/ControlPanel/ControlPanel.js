@@ -197,6 +197,7 @@ const ControlPanel = () => {
 
   return (
     <div className="ControlPanel">
+      <h2 className="component-title">Control Panel</h2>
       <Modes
         currMode={currMode}
         changeCurrMode={changeCurrMode}

@@ -106,3 +106,7 @@
   border: 1px solid lightgray;
   user-select: none;
 }
+
+.component-title {
+  padding-left: 10px;
+}
