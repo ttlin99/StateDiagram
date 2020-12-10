@@ -48,6 +48,8 @@ class App extends Component {
 
     //num of boxes in workspace currently
     numBoxes: 3,
+
+    isClick: true,
   };
 
   // add the shapeId to the array, and the shape itself to the map
@@ -354,6 +356,8 @@ class App extends Component {
     let currEvent = e.type;
     let currState = this.state.currStateInDiagram;
     let currStateData = this.state.stateObjectsMap[currState];
+    if (currEvent == "mousedown") this.setState({ isClick: true });
+    if (currEvent == "mousemove") this.setState({ isClick: false });
     if (!currStateData.outgoingTransitions) return;
 
     let currObject = undefined;
@@ -372,7 +376,7 @@ class App extends Component {
         case "mousemove":
           if(transitionData.eventType === "mouse move" && transitionData.objectType === currObject){
             this.doAction(transitionData.behavior, e);
-            this.setState({ currStateInDiagram: transitionData.endState});
+            this.setState({ currStateInDiagram: transitionData.endState, isClick: false});
           }
           break;
         case "mousedown":
@@ -389,8 +393,10 @@ class App extends Component {
           break;
         case "click":
           if(transitionData.eventType === "click" && transitionData.objectType === currObject){
-            this.doAction(transitionData.behavior, e);
-            this.setState({ currStateInDiagram: transitionData.endState});
+            if (this.state.isClick) {
+              this.doAction(transitionData.behavior, e);
+              this.setState({ currStateInDiagram: transitionData.endState, isClick: true});
+            }
           }
           break;
         case "dblclick":
