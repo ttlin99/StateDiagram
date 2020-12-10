@@ -361,7 +361,7 @@ class App extends Component {
     if (!currStateData.outgoingTransitions) return;
 
     let currObject = undefined;
-    if(e.target.className === "Workspace"){
+    if(e.target.className === "Workspace" || e.target.className === "component-title"){
       currObject = "work space";
     }
     else{
