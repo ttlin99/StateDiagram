@@ -330,6 +330,7 @@ class App extends Component {
         }
         else {
           let container = document.getElementById(event.target.id);
+          if (!container) return;
           let xTransform = event.nativeEvent.offsetX + parseInt(container.style.left,10) - 50;
           let yTransform = event.nativeEvent.offsetY + parseInt(container.style.top,10) - 50;
           let right = workspace.clientWidth;
