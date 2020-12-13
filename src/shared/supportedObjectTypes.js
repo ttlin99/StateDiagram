@@ -1,4 +1,4 @@
 export default [
-  "work space",
-  "target",
+  "back-ground",
+  "object",
 ];

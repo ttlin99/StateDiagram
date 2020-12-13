@@ -363,10 +363,10 @@ class App extends Component {
 
     let currObject = undefined;
     if(e.target.className === "Workspace" || e.target.className === "component-title"){
-      currObject = "work space";
+      currObject = "back-ground";
     }
     else{
-      currObject = "target"
+      currObject = "object"
     }
 
     for (var i = 0; i < currStateData.outgoingTransitions.length; i++) {
