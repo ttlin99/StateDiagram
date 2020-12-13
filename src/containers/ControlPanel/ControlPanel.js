@@ -166,10 +166,7 @@ const ControlPanel = () => {
 
   var currOptions = undefined;
 
-  if(currMode === "cursor"){
-    currOptions = undefined;
-  }
-  else if(currMode === "transition"){
+  if(currMode === "transition"){
     currOptions = (<>
                   <EventType
                     currEventType={currEventType}
@@ -179,7 +176,6 @@ const ControlPanel = () => {
                     currObjectType={currObjectType}
                     changeCurrObjectType={changeCurrObjectType}
                   />
-
                   <Behavior
                     currBehavior={currBehavior}
                     changeCurrBehavior={changeCurrBehavior}
@@ -188,7 +184,7 @@ const ControlPanel = () => {
                   </>
     );
   }
-  else if(currMode === "node"){
+  else{
     currOptions = <NodeName
                     currNodeName={currNodeName}
                     changeCurrNodeName={changeCurrNodeName}
