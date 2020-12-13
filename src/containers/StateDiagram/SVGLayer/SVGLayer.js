@@ -340,12 +340,18 @@ const SVGLayer = () => {
         if(stateObjectsMap[stateObjectId].type === "transition"){
           return renderStateObject(stateObjectsMap[stateObjectId], idx);
         }
+        else{
+          return null;
+        }
       })}
       {drawing && renderTempStateObject()}
 
       {stateObjects.map((stateObjectId, idx) => {
         if(stateObjectsMap[stateObjectId].type === "node"){
           return renderStateObject(stateObjectsMap[stateObjectId], idx);
+        }
+        else{
+          return null;
         }
       })}
     </svg>

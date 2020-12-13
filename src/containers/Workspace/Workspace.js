@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import Target from "./Target"
 import ControlContext from "../../contexts/control-context";
 
 import "./Workspace.css";

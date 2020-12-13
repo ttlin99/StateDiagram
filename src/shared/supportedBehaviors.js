@@ -1,9 +1,9 @@
 export default [
   "none",
-  "select target",
-  "deselect target",
+  "create object",
+  "select object",
+  "deselect object",
   "move selected",
-  "create box",
   "start move object",
   "stop move object",
   "move object",

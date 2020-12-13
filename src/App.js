@@ -225,7 +225,7 @@ class App extends Component {
     switch(behavior){
       case "none":
         break;
-      case "select target":
+      case "select object":
         if(event.target.className === "targetObject"){
           let currTarget = document.getElementById(event.target.id);
           let prevSelection = this.state.currWorkspaceSelection;
@@ -238,7 +238,7 @@ class App extends Component {
           this.setState({ currWorkspaceSelection: currTarget });
         }
         break;
-      case "deselect target":
+      case "deselect object":
         let prevSelection = this.state.currWorkspaceSelection;
         if(prevSelection){
           prevSelection.style.background = "red";
@@ -249,7 +249,7 @@ class App extends Component {
         let currTarget = this.state.currWorkspaceSelection;
         if(currTarget){
             let workspace = document.getElementById("Workspace");
-            if (event.target.className == 'Workspace') {
+            if (event.target.className === 'Workspace') {
               let xTransform = event.nativeEvent.offsetX - 50;
               let yTransform = event.nativeEvent.offsetY - 50;
               let right = workspace.clientWidth;
@@ -278,7 +278,6 @@ class App extends Component {
           this.setState({ currWorkspaceMoving: currTarget });
         }
         break;
-      break;
       case "stop move object":
         this.setState({ currWorkspaceMoving: undefined });
         break;
@@ -286,7 +285,7 @@ class App extends Component {
         let currMoving = this.state.currWorkspaceMoving;
         if(currMoving){
             let workspace = document.getElementById("Workspace");
-            if (event.target.className == 'Workspace') {
+            if (event.target.className === 'Workspace') {
               let xTransform = event.nativeEvent.offsetX - 50;
               let yTransform = event.nativeEvent.offsetY - 50;
               let right = workspace.clientWidth;
@@ -309,15 +308,16 @@ class App extends Component {
             }
         }
         break;
-      case "create box":
+      case "create object":
         let workspace = document.getElementById("Workspace");
-        if (event.target.className == 'Workspace') {
+        if (event.target.className === 'Workspace') {
           let xTransform = event.nativeEvent.offsetX - 50;
           let yTransform = event.nativeEvent.offsetY - 50;
           let right = workspace.clientWidth;
           let bottom = workspace.clientHeight;
+          var box;
           if (0 <= xTransform  && xTransform + 100 <= right && 0 <= yTransform && yTransform + 100 <= bottom) {
-            var box = document.createElement("div");
+            box = document.createElement("div");
             box.style.width = "100px";
             box.style.height = "100px";
             box.style.left = xTransform + 'px';
@@ -336,7 +336,7 @@ class App extends Component {
           let right = workspace.clientWidth;
           let bottom = workspace.clientHeight;
           if (0 <= xTransform && xTransform + 100 <= right && 0 <= yTransform && yTransform + 100 <= bottom) {
-            var box = document.createElement("div");
+            box = document.createElement("div");
             box.style.width = "100px";
             box.style.height = "100px";
             box.style.left = xTransform + 'px';
@@ -347,7 +347,7 @@ class App extends Component {
             this.setState({numBoxes: this.state.numBoxes + 1});
           }
         }
-
+        break;
       default:
 
     }
@@ -357,8 +357,8 @@ class App extends Component {
     let currEvent = e.type;
     let currState = this.state.currStateInDiagram;
     let currStateData = this.state.stateObjectsMap[currState];
-    if (currEvent == "mousedown") this.setState({ isClick: true });
-    if (currEvent == "mousemove") this.setState({ isClick: false });
+    if (currEvent === "mousedown") this.setState({ isClick: true });
+    if (currEvent === "mousemove") this.setState({ isClick: false });
     if (!currStateData.outgoingTransitions) return;
 
     let currObject = undefined;
