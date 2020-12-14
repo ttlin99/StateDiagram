@@ -157,6 +157,18 @@ class App extends Component {
 
   };
 
+  createBox = (left, top, id) => {
+    let workspace = document.getElementById("Workspace");
+    let box = document.createElement("div");
+    box.style.width = "100px";
+    box.style.height = "100px";
+    box.style.left = left + 'px';
+    box.style.top = top + 'px';
+    box.classList.add("targetObject");
+    box.id = 'box' + id;
+    workspace.appendChild(box);
+  };
+
   resetStateDiagram = () => {
     let stateObjectsMap = {
       start: {
@@ -171,6 +183,20 @@ class App extends Component {
       }};
     let stateObjects = ["start"];
     this.setState({ stateObjectsMap, stateObjects, selectedStateObjectId: undefined, currStateInDiagram: "start" });
+
+    // reset Workspace
+    for (var i = 1; i <= this.state.numBoxes; i++) {
+      var boxName = "box" + i;
+      var box = document.getElementById(boxName);
+
+      box.remove();
+    }
+
+    this.createBox(20, 70, 1);
+    this.createBox(220, 70, 2);
+    this.createBox(420, 70, 3);
+
+    this.setState({ numBoxes: 3 });
   };
 
   changeCurrMode = (mode) => {
