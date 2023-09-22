@@ -1,4 +1,4 @@
-# 05631 HW5 Starting Code
+# State Diagram Builder
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
